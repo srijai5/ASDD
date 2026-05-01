@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MultiSync ASD | Screening Report</title>
+    <style>
+        :root { 
+            --sky-blue: #74b9ff; 
+            --sun-yellow: #ffeaa7; 
+            --grass-green: #55efc4; 
+            --berry-red: #ff7675; 
+            --soft-white: #ffffff;
+            --accent: #0984e3;
+        }
+        
+        body { 
+            font-family: 'Comic Sans MS', 'Inter', sans-serif; 
+            background: #f0f8ff url({% static 'images/subtle_child_pattern.png' %}) repeat;
+            color: #2d3436; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px; 
+        }
+
+        .report-card { 
+            background: var(--soft-white); 
+            width: 100%; 
+            max-width: 850px; 
+            padding: 50px; 
+            border-radius: 40px; 
+            box-shadow: 0 15px 0px #dfe6e9; 
+            border: 8px solid var(--sky-blue);
+            position: relative;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        
+        /* High-Precision Outcome Banner */
+        .outcome-banner { 
+            padding: 25px; 
+            border-radius: 30px; 
+            font-size: 2rem; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.1);
+            border-bottom: 8px solid rgba(0,0,0,0.1);
+        }
+
+        .high { background: var(--berry-red); color: white; }
+        .low { background: var(--grass-green); color: #1e3799; }
+
+        .advice-pill {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 3px dashed #636e72;
+            display: inline-block;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+
+        .friendly-intro { 
+            font-size: 1.1rem; 
+            line-height: 1.6; 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 30px;
+            border-left: 10px solid var(--accent);
+        }
+
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+
+        .info-box { 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 20px; 
+            border: 3px solid #eee; 
+            position: relative;
+        }
+        
+        .info-box h3 { color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 10px; }
+
+        .action-list { padding: 0; list-style: none; margin-top: 15px; }
+        .action-list li { margin-bottom: 12px; padding-left: 30px; position: relative; }
+        .action-list li::before { content: "⭐"; position: absolute; left: 0; }
+
+        .btn-print { 
+            width: 100%; 
+            padding: 22px; 
+            background: var(--sky-blue); 
+            color: white; 
+            border: none; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1.2rem; 
+            margin-top: 30px; 
+            box-shadow: 0 8px 0px #0984e3;
+        }
+        
+        .disclaimer { font-size: 0.85rem; color: #636e72; text-align: center; margin-top: 40px; line-height: 1.5; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="report-card">
+        <div class="header">
+            <div class="outcome-banner {% if 'Recommended' in outcome %}high{% else %}low{% endif %}">
+                {% if 'Recommended' in outcome %}
+                    🚨 SCREENING OUTCOME: FOLLOW-UP ADVISED
+                {% else %}
+                    ✅ SCREENING OUTCOME: LOW RISK IDENTIFIED
+                {% endif %}
+            </div>
+
+            <div class="advice-pill">
+                <strong>PRIMARY ADVICE:</strong> 
+                <span style="color: {% if 'Recommended' in outcome %}var(--berry-red){% else %}var(--grass-green){% endif %};">
+                    {% if 'Recommended' in outcome %}Pursue Professional Diagnosis{% else %}Continue Regular Monitoring{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="friendly-intro">
+            <strong>Multimodal Synchronization Analysis:</strong> Our system has processed the <strong>Facial Coordinate Set</strong> via ResNet-50 and fused it with the <strong>10 Behavioral Traits</strong> from your AQ-10 form. 
+            This joint evaluation helps in detecting ASD-related biomarkers.
+        </div>
+
+        <div class="content-grid">
+            <div class="info-box" style="border-top: 8px solid var(--sky-blue);">
+                <h3>🎨 Clinical Interpretation</h3>
+                <p>Based on our model, the identified patterns that suggest {% if 'Recommended' in outcome %}a high probability{% else %}a low probability{% endif %} of ASD-related traits.</p>
+                
+            </div>
+
+            <div class="info-box" style="border-top: 8px solid var(--grass-green);">
+                <h3>📝 Recommended Next Steps</h3>
+                <ul class="action-list">
+                    {% if 'Recommended' in outcome %}
+                        <li><strong>Consult a Specialist:</strong> Share this report with a Pediatrician for a formal clinical evaluation.</li>
+                        <li><strong>Developmental History:</strong> Prepare a list of social milestones to discuss with your doctor.</li>
+                    {% else %}
+                        <li><strong>Routine Play:</strong> Continue social engagement through "shared attention" activities.</li>
+                        <li><strong>Annual Review:</strong> Mention this screening during your next regular health checkup.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <button onclick="window.print()" class="btn-print no-print">📥 DOWNLOAD CLINICAL SUMMARY FOR DOCTOR</button>
+        <p style="text-align: center; margin-top: 20px;"><a href="/" class="no-print" style="color: var(--sky-blue); font-weight: bold; text-decoration: none;">← Start New Multimodal Scan</a></p>
+
+        
+    </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiSync ASD | Multimodal Screening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --vivid-purple: #6c5ce7;
+            --electric-blue: #0984e3;
+            --soft-teal: #00cec9;
+            --sunset-orange: #ff7675;
+            --mint: #55efc4;
+            --white: #ffffff;
+            --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background: var(--bg-gradient);
+            color: #2d3436;
+            padding-bottom: 50px;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        /* HERO HEADER */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            border-bottom: 8px solid var(--vivid-purple);
+        }
+
+        .hero h1 { 
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.5rem; 
+            background: linear-gradient(to right, var(--vivid-purple), var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        /* INFORMATION SECTION */
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--soft-teal);
+            transition: 0.3s;
+        }
+        .info-card:nth-child(2) { border-top-color: var(--sunset-orange); }
+        .info-card:nth-child(3) { border-top-color: var(--vivid-purple); }
+
+        .info-card h3 { color: #2d3436; margin-bottom: 12px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .info-card p { font-size: 1rem; color: #636e72; line-height: 1.6; }
+
+        /* SCREENING INTERFACE */
+        .main-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 35px;
+            border: 2px solid white;
+            box-shadow: var(--card-shadow);
+        }
+
+        .step-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 50px;
+            background: var(--vivid-purple);
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        /* COLORFUL INPUTS */
+        .upload-zone {
+            border: 4px dashed var(--electric-blue);
+            background: #f0f7ff;
+            border-radius: 25px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .upload-zone:hover { background: #e0efff; transform: scale(1.02); }
+
+        .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .q-item { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: 20px; 
+            border: 1px solid #eee;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            font-family: inherit;
+            margin-top: 8px;
+            outline: none;
+        }
+        select:focus { border-color: var(--soft-teal); }
+
+        .btn-rainbow {
+            grid-column: span 2;
+            background: linear-gradient(45deg, var(--vivid-purple), var(--electric-blue), var(--soft-teal));
+            background-size: 200% auto;
+            color: white;
+            padding: 22px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.4s;
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+            margin-top: 20px;
+        }
+        .btn-rainbow:hover { background-position: right center; transform: translateY(-3px); }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal-box {
+            background: white; padding: 40px; border-radius: 40px; text-align: center; max-width: 450px;
+            border: 8px solid var(--sunset-orange);
+        }
+
+        .image-preview { width: 100%; height: 200px; object-fit: contain; display: none; border-radius: 20px; margin-top: 15px; }
+
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .q-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div id="photoModal" class="modal-overlay">
+        <div class="modal-box" style="border-color: var(--electric-blue);">
+            <div style="font-size: 4rem;">📸</div>
+            <h2 style="color: var(--electric-blue); margin-bottom: 10px;">Say Cheese!</h2>
+            <p>We need a photo of your child to start the facial analysis. Please pick one!</p>
+            <button class="btn-rainbow" style="padding: 10px 30px; font-size: 1rem;" onclick="closeModal('photoModal')">Got it!</button>
+        </div>
+    </div>
+
+    <div id="questionsModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="font-size: 4rem;">🧩</div>
+            <h2 style="color: var(--sunset-orange); margin-bottom: 10px;">Almost Ready!</h2>
+            <p>The behavioral questions are super important for a correct analysis. Please fill them all!</p>
+            <button class="btn-rainbow" style="padding: 10px 30px; font-size: 1rem; background: var(--sunset-orange);" onclick="closeModal('questionsModal')">Finish Questions</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="hero">
+            <h1>MultiSync ASD</h1>
+            <p style="font-weight: 600; color: #b2bec3;">Bridging Technology and Care with Multimodal Intelligence</p>
+        </header>
+
+        <section class="info-section">
+            <div class="info-card">
+                <h3><span>🌟</span> What is MultiSync?</h3>
+                <p>MultiSync ASD is a pioneering screening tool that uses "Multimodal Fusion" technology. By looking at both physical traits and behavioral patterns simultaneously, it provides a more comprehensive developmental snapshot than traditional paper-based tests.</p>
+            </div>
+            <div class="info-card">
+                <h3><span>🧠</span> How It Works</h3>
+                <p>Our tool
+                     analyzes specific facial biomarkers using computer vision while processing your observations from the AQ-10 survey. This "dual-sync" method ensures that the physiological and behavioral markers are cross-referenced for higher accuracy.</p>
+            </div>
+            <div class="info-card">
+                <h3><span>🤝</span> Our Mission</h3>
+                <p>We believe in early intervention. This tool is designed to be a supportive first step for parents, helping you gather objective data to share with your pediatrician, leading to faster support for your child's unique journey.</p>
+            </div>
+        </section>
+
+        
+
+        <form id="analysisForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="main-grid">
+                <section class="glass-card">
+                    <span class="step-badge">STEP 01</span>
+                    <h2 style="margin-bottom: 15px;">Facial Screening</h2>
+                    <div class="upload-zone" onclick="document.getElementById('face_image').click()">
+                        <div id="placeholder">
+                            <div style="font-size: 3.5rem; margin-bottom: 10px;">☁️</div>
+                            <p style="font-weight: 700;">Upload Child's Photo</p>
+                        </div>
+                        <img id="image-display" class="image-preview">
+                    </div>
+                    <input type="file" id="face_image" name="face_image" style="display: none;" onchange="previewImage(this)">
+                    <div id="status" style="text-align:center; margin-top:15px; font-weight:700; color:var(--electric-blue);"></div>
+                </section>
+
+                <section class="glass-card">
+                    <span class="step-badge" style="background: var(--soft-teal);">STEP 02</span>
+                    <h2 style="margin-bottom: 15px;">Behavioral Insights</h2>
+                    <div class="q-grid">
+                        {% for q in questions %}
+                        <div class="q-item">
+                            <label style="font-size: 0.85rem; font-weight: 700;">{{ q }}</label>
+                            <select name="q{{ forloop.counter }}">
+                                <option value="" disabled selected>Select...</option>
+                                <option value="0">Rarely / No</option>
+                                <option value="1">Frequently / Yes</option>
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <button type="submit" class="btn-rainbow">🚀 START MULTIMODAL ANALYSIS</button>
+        </form>
+
+        
+    </div>
+
+    <script>
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        document.getElementById('analysisForm').onsubmit = function(e) {
+            const fileInput = document.getElementById('face_image');
+            const selects = document.querySelectorAll('select');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                document.getElementById('photoModal').style.display = 'flex';
+                return;
+            }
+
+            let missing = false;
+            selects.forEach(s => { if (s.value === "") missing = true; });
+
+            if (missing) {
+                e.preventDefault();
+                document.getElementById('questionsModal').style.display = 'flex';
+            } else {
+                document.querySelector('.btn-rainbow').innerHTML = "⌛ SYNCING DATA & ANALYZING...";
+            }
+        };
+
+        function previewImage(input) {
+            const file = input.files[0];
+            const display = document.getElementById('image-display');
+            const placeholder = document.getElementById('placeholder');
+            const status = document.getElementById('status');
+
+            if (file) {
+                status.textContent = "✓ Photo Loaded: " + file.name;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    display.src = e.target.result;
+                    display.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
